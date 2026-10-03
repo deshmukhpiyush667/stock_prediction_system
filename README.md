@@ -16,11 +16,13 @@ The objective is to discover statistical and momentum edges from historical pric
 
 ### Key Highlights
 * **Zero Fake / Mock Data:** Trained strictly on historical NSE blue-chip data (100 stocks across a 10-year period: 2010 to 2020).
+* **User Authentication System:** Complete Sign Up (registration) and Sign In (login) system backed by SQLite and NIST-approved PBKDF2 salted password hashing.
 * **Strict Anti-Leakage Pipeline:** Future prices are isolated solely to create the target label and are strictly excluded from the feature space.
 * **Chronological Time-Series Validation:** No random shuffling; 80% chronological train (2010–2018) and 20% true out-of-sample forward test (2018–2020).
 * **Dual ML Ensemble:** Compares **Random Forest** (bagging) and **XGBoost** (boosting) against a naive benchmark.
-* **Production REST API:** High-speed, in-memory model caching with FastAPI.
-* **Interactive Financial Terminal:** React dashboard featuring live predictions, model confidence bars, moving average toggles, and performance comparisons.
+* **Production REST API:** High-speed, in-memory model caching with FastAPI and session authentication.
+* **Interactive Financial Terminal:** React dashboard featuring live predictions, model confidence bars, moving average toggles, user profile badges, and performance comparisons.
+
 
 ---
 

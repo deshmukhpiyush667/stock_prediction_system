@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import StockChart from './components/StockChart';
 import ModelEvaluation from './components/ModelEvaluation';
-import { TrendingUp, TrendingDown, Activity, AlertCircle, RefreshCw, Layers } from 'lucide-react';
+import AuthModal from './components/AuthModal';
+import { TrendingUp, TrendingDown, Activity, AlertCircle, RefreshCw, Layers, LogOut, UserCheck } from 'lucide-react';
 
 const API_BASE = "http://127.0.0.1:8000";
 
@@ -18,9 +19,43 @@ export default function App() {
   const [error, setError] = useState(null);
   const [apiOnline, setApiOnline] = useState(false);
 
-  // 1. Initial Load: Stocks list, health, and metrics
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  // 1. Initial Load: Auth check, Stocks list, health, and metrics
   useEffect(() => {
+    // Check saved session in localStorage
+    const savedToken = localStorage.getItem("stock_token");
+    const savedUserStr = localStorage.getItem("stock_user");
+    if (savedToken && savedUserStr) {
+      try {
+        const parsed = JSON.parse(savedUserStr);
+        setCurrentUser(parsed);
+        // Verify with server in background
+        fetch(`${API_BASE}/auth/me`, {
+          headers: { Authorization: `Bearer ${savedToken}` }
+        })
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data && data.user) {
+              setCurrentUser(data.user);
+            } else {
+              // Token expired
+              localStorage.removeItem("stock_token");
+              localStorage.removeItem("stock_user");
+              setCurrentUser(null);
+            }
+          })
+          .catch(() => {});
+      } catch (e) {
+        localStorage.removeItem("stock_token");
+        localStorage.removeItem("stock_user");
+      }
+    }
+
     async function initDashboard() {
+
       try {
         const [healthRes, stocksRes, metricsRes] = await Promise.all([
           fetch(`${API_BASE}/health`).catch(() => null),
@@ -91,6 +126,21 @@ export default function App() {
     }
   }
 
+  async function handleLogout() {
+    const token = localStorage.getItem("stock_token");
+    if (token) {
+      try {
+        await fetch(`${API_BASE}/auth/logout`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } catch (e) {}
+    }
+    localStorage.removeItem("stock_token");
+    localStorage.removeItem("stock_user");
+    setCurrentUser(null);
+  }
+
   const isUp = prediction?.prediction === "UP";
   const prob = prediction ? prediction.probability : 0.5;
 
@@ -143,6 +193,28 @@ export default function App() {
               ))}
             </select>
           </div>
+
+          {/* User Profile / Auth Actions */}
+          {currentUser ? (
+            <div className="user-profile-pill">
+              <div className="user-avatar-circle">
+                {currentUser.username ? currentUser.username[0].toUpperCase() : 'U'}
+              </div>
+              <span style={{ fontWeight: 600 }}>{currentUser.username}</span>
+              <button className="btn-logout" onClick={handleLogout} title="Sign Out">
+                <LogOut size={15} />
+              </button>
+            </div>
+          ) : (
+            <div className="auth-header-actions">
+              <button className="btn-auth-signin" onClick={() => setAuthModalOpen(true)}>
+                Sign In
+              </button>
+              <button className="btn-auth-register" onClick={() => setAuthModalOpen(true)}>
+                Sign Up
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -283,6 +355,15 @@ export default function App() {
           />
         </>
       )}
+
+      {/* Authentication Modal (Sign In / Register) */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onAuthSuccess={(user, token) => setCurrentUser(user)}
+        apiBase={API_BASE}
+      />
     </div>
   );
 }
+

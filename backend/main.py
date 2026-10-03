@@ -3,7 +3,8 @@ import sys
 import json
 import pandas as pd
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Query
+from pydantic import BaseModel, EmailStr
+from fastapi import FastAPI, HTTPException, Query, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -17,6 +18,18 @@ from utils.helpers import get_available_tickers
 from services.prediction_service import predict_stock_direction, load_model_metadata
 from services.data_service import get_raw_filepath, load_raw_stock_data, clean_stock_data
 from services.feature_service import create_features
+from services.auth_service import register_user, login_user, get_user_by_token, logout_user
+
+# Authentication Request Schemas
+class RegisterSchema(BaseModel):
+    email: str
+    username: str
+    password: str
+
+class LoginSchema(BaseModel):
+    username_or_email: str
+    password: str
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -183,3 +196,62 @@ def get_metrics():
     with open(results_path, "r", encoding="utf-8") as f:
         data = json.load(f)
     return data
+
+
+# =========================================================================
+# AUTHENTICATION ENDPOINTS (SIGNUP / SIGNIN / ME / LOGOUT)
+# =========================================================================
+
+@app.post("/auth/register")
+def register_endpoint(req: RegisterSchema):
+    """Registers a new user and returns user info + session token."""
+    try:
+        result = register_user(
+            email=req.email,
+            username=req.username,
+            password=req.password
+        )
+        return result
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
+
+
+@app.post("/auth/login")
+def login_endpoint(req: LoginSchema):
+    """Authenticates user by email/username and password, returning session token."""
+    try:
+        result = login_user(
+            identifier=req.username_or_email,
+            password=req.password
+        )
+        return result
+    except ValueError as ve:
+        raise HTTPException(status_code=401, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
+
+
+@app.get("/auth/me")
+def get_current_user_endpoint(authorization: Optional[str] = Header(None)):
+    """Retrieves current user profile from Bearer session token."""
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing Authorization header.")
+    
+    user = get_user_by_token(authorization)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid or expired session token.")
+    
+    return {"user": user}
+
+
+@app.post("/auth/logout")
+def logout_endpoint(authorization: Optional[str] = Header(None)):
+    """Invalidates active session token."""
+    if not authorization:
+        return {"status": "ok", "message": "No active session to terminate"}
+    
+    logout_user(authorization)
+    return {"status": "ok", "message": "Logged out successfully"}
+

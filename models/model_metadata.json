@@ -1,0 +1,54 @@
+{
+  "saved_at": "2026-10-03T20:07:04.167488",
+  "ticker": "TCS",
+  "feature_names": [
+    "Close",
+    "Volume",
+    "Daily_Return",
+    "Price_Change",
+    "Intraday_Return",
+    "Intraday_Volatility",
+    "MA_5",
+    "MA_10",
+    "MA_20",
+    "MA_50",
+    "Close_to_MA5",
+    "Close_to_MA10",
+    "Close_to_MA20",
+    "Close_to_MA50",
+    "Volume_Change",
+    "Volume_to_MA5",
+    "RSI_14"
+  ],
+  "feature_count": 17,
+  "target_mapping": {
+    "0": "DOWN",
+    "1": "UP"
+  },
+  "train_period": {
+    "start": "2010-03-16",
+    "end": "2018-08-14",
+    "samples": 2094
+  },
+  "test_period": {
+    "start": "2018-08-16",
+    "end": "2020-09-30",
+    "samples": 524
+  },
+  "models": {
+    "random_forest": {
+      "accuracy": 0.542,
+      "precision": 0.5423,
+      "recall": 0.7537,
+      "f1": 0.6308,
+      "file": "random_forest_model.pkl"
+    },
+    "xgboost": {
+      "accuracy": 0.5382,
+      "precision": 0.5381,
+      "recall": 0.7794,
+      "f1": 0.6366,
+      "file": "xgboost_model.pkl"
+    }
+  }
+}

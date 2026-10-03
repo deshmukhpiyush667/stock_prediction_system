@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+*.log
+
+# Node & Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment Variables & Secrets
+.env
+.env.*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Large Raw Datasets (Uncomment if dataset exceeds GitHub 100MB limit)
+# data/raw/*.xlsx
+# data/raw/*.csv

@@ -1,0 +1,109 @@
+{
+  "meta": {
+    "total_samples": 2618,
+    "train_samples": 2094,
+    "test_samples": 524,
+    "train_ratio": 0.8,
+    "test_ratio": 0.2,
+    "train_start_date": "2010-03-16",
+    "train_end_date": "2018-08-14",
+    "test_start_date": "2018-08-16",
+    "test_end_date": "2020-09-30",
+    "train_up_pct": 51.29,
+    "train_down_pct": 48.71,
+    "test_up_pct": 51.91,
+    "test_down_pct": 48.09,
+    "test_baseline_accuracy": 51.91,
+    "feature_count": 17,
+    "feature_names": [
+      "Close",
+      "Volume",
+      "Daily_Return",
+      "Price_Change",
+      "Intraday_Return",
+      "Intraday_Volatility",
+      "MA_5",
+      "MA_10",
+      "MA_20",
+      "MA_50",
+      "Close_to_MA5",
+      "Close_to_MA10",
+      "Close_to_MA20",
+      "Close_to_MA50",
+      "Volume_Change",
+      "Volume_to_MA5",
+      "RSI_14"
+    ]
+  },
+  "models": {
+    "baseline": {
+      "model_name": "Baseline (Majority Class)",
+      "accuracy": 0.5191,
+      "precision": 0.5191,
+      "recall": 1.0,
+      "f1": 0.6834,
+      "confusion_matrix": [
+        [
+          0,
+          252
+        ],
+        [
+          0,
+          272
+        ]
+      ],
+      "description": "Always predicts the market will go UP (naive heuristic)"
+    },
+    "random_forest": {
+      "model_name": "Random Forest",
+      "accuracy": 0.542,
+      "precision": 0.5423,
+      "recall": 0.7537,
+      "f1": 0.6308,
+      "confusion_matrix": [
+        [
+          79,
+          173
+        ],
+        [
+          67,
+          205
+        ]
+      ],
+      "test_samples": 524,
+      "hyperparameters": {
+        "n_estimators": 100,
+        "max_depth": 6,
+        "min_samples_split": 10,
+        "min_samples_leaf": 4,
+        "random_state": 42
+      }
+    },
+    "xgboost": {
+      "model_name": "XGBoost",
+      "accuracy": 0.5382,
+      "precision": 0.5381,
+      "recall": 0.7794,
+      "f1": 0.6366,
+      "confusion_matrix": [
+        [
+          70,
+          182
+        ],
+        [
+          60,
+          212
+        ]
+      ],
+      "test_samples": 524,
+      "hyperparameters": {
+        "n_estimators": 100,
+        "max_depth": 4,
+        "learning_rate": 0.05,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "random_state": 42
+      }
+    }
+  }
+}
